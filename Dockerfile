@@ -15,16 +15,16 @@ COPY --from=builder /app/dist ./dist
 COPY package*.json ./
 COPY vite.config.js ./
 
-# Change ownership of the /app directory to the node user
-# This allows npm install (if it creates/modifies files in /app outside node_modules) 
-# and vite preview to write necessary files (like the timestamp file).
-RUN chown -R node:node /app
+# Change group to root (0) and grant group read/write/execute permissions to /app
+# This allows the arbitrary UID assigned by OpenShift (which is in group 0) to write.
+RUN chgrp -R 0 /app && \
+    chmod -R g+rwX /app
 
-# Switch to the node user explicitly, good practice though often default for CMD
+# Switch to the node user. The process will run as this user if not overridden by OpenShift,
+# but the important part for permissions is the group ownership set above.
 USER node
 
 # Install production dependencies (vite is needed for vite preview)
-# This will now run as the 'node' user, writing to node_modules within /app
 RUN npm install --omit=dev
 
 # Expose port 8080 (as defined in the start script)
