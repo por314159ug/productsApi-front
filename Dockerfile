@@ -19,8 +19,8 @@ COPY vite.config.js ./
 # We install all dependencies from package.json as vite preview might need them
 RUN npm install --omit=dev
 
-# Expose port 80
-EXPOSE 80
+# Expose port 8080
+EXPOSE 8080
 
-# Start the application using vite preview on port 80
-CMD ["npm", "run", "preview", "--", "--port", "80"] 
+# Start the application using vite preview on port 8080 and listen on all interfaces
+CMD ["npm", "run", "preview", "--", "--port", "8080", "--host"] 
