@@ -6,16 +6,21 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# Stage 2: Serve the application using a lightweight server
+# Stage 2: Serve the application using Vite's preview server
 FROM node:18-alpine
 WORKDIR /app
-COPY --from=builder /app/dist /app/dist
 
-# Install serve globally
-RUN npm install -g serve
+# Copy built assets and necessary files
+COPY --from=builder /app/dist ./dist
+COPY package.json ./
+COPY vite.config.js ./
 
-# Expose the port the app runs on
+# Install dependencies needed for vite preview
+# We install all dependencies from package.json as vite preview might need them
+RUN npm install --omit=dev
+
+# Expose port 80
 EXPOSE 80
 
-# Start the application
-CMD ["serve", "-s", "dist", "-l", "80"] 
+# Start the application using vite preview on port 80
+CMD ["npm", "run", "preview", "--", "--port", "80"] 
